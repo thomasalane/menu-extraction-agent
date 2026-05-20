@@ -1,0 +1,9 @@
+google-genai>=0.8.0
+streamlit>=1.35.0
+pydantic>=2.7.0
+pandas>=2.2.0
+pillow>=10.3.0
+tenacity>=8.3.0
+python-dotenv>=1.0.0
+numpy>=1.26.0
+scipy>=1.13.0
