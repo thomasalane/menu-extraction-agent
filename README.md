@@ -11,5 +11,4 @@ Desenvolvido com **Streamlit** e **Google Gemini**, o sistema identifica automat
 - Revisão e edição dos dados extraídos
 - Exportação em CSV ou JSON
 
-## 🛠️ Tecnologias
-- Python · Streamlit · Google Gemini API · Pydantic · Pandas
+
