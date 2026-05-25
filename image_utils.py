@@ -5,10 +5,22 @@ import io
 import numpy as np
 from PIL import Image
 
-from config import MAX_IMAGE_DIMENSION, MAX_IMAGE_SIZE_MB, SUPPORTED_FORMATS
+from config import (
+    BLUR_THRESHOLD_ERROR,
+    BLUR_THRESHOLD_WARNING,
+    MAX_IMAGE_DIMENSION,
+    MAX_IMAGE_SIZE_MB,
+    SUPPORTED_FORMATS,
+)
 
-BLUR_THRESHOLD_ERROR = 10.0
-BLUR_THRESHOLD_WARNING = 50.0
+__all__ = [
+    "BLUR_THRESHOLD_ERROR",
+    "BLUR_THRESHOLD_WARNING",
+    "validate_image",
+    "compute_blur_score",
+    "prepare_for_api",
+    "make_thumbnail",
+]
 
 
 def validate_image(file_bytes: bytes) -> tuple[bool, str]:

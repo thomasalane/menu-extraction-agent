@@ -19,7 +19,8 @@ st.html("""
 (function () {
     const HIDE = ['Print', 'Record screen', 'Made with Streamlit'];
     const doc = window.parent.document;
-    const observer = new MutationObserver(() => {
+
+    const hide = () => {
         doc.querySelectorAll('li[role="menuitem"], button').forEach(el => {
             if (HIDE.some(t => el.textContent.trim().startsWith(t))) {
                 el.style.display = 'none';
@@ -29,8 +30,13 @@ st.html("""
                 }
             }
         });
-    });
+    };
+
+    const observer = new MutationObserver(hide);
     observer.observe(doc.body, { childList: true, subtree: true });
+
+    // Disconnect after 30s — menu items are static, no need to watch forever
+    setTimeout(() => observer.disconnect(), 30000);
 })();
 </script>
 """)

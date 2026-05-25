@@ -44,6 +44,26 @@ def _commit_and_reset() -> None:
     st.session_state.pop("main_editor", None)
 
 
+def _on_editor_change() -> None:
+    """Fires when user makes an edit in data_editor. Commits delta to edited_df."""
+    state = st.session_state.get("main_editor") or {}
+    edited_rows = state.get("edited_rows") or {}
+    if not edited_rows:
+        return
+
+    display_indices = st.session_state.get("_display_indices") or []
+    df = st.session_state.edited_df
+
+    for visual_row, changes in edited_rows.items():
+        if visual_row >= len(display_indices):
+            continue
+        actual_idx = display_indices[visual_row]
+        for col, val in changes.items():
+            df.at[actual_idx, col] = val
+        if "price_raw" in changes:
+            df.at[actual_idx, "price_float"] = _parse_price(str(changes["price_raw"] or ""))
+
+
 def render_results_tab() -> None:
     st.header("Itens Extraídos")
 
@@ -127,6 +147,7 @@ def render_results_tab() -> None:
         width="stretch",
         num_rows="fixed",
         key="main_editor",
+        on_change=_on_editor_change,
     )
 
     # --- Add item manually ---
@@ -163,10 +184,16 @@ def render_results_tab() -> None:
                     "conf_category": 1.0,
                     "flags": "",
                 }
-                st.session_state.edited_df = pd.concat(
-                    [st.session_state.edited_df, pd.DataFrame([new_row])],
-                    ignore_index=True,
-                )
+                new_df = pd.DataFrame([new_row])
+                current = st.session_state.edited_df
+                if current.empty:
+                    st.session_state.edited_df = new_df
+                else:
+                    # Drop all-NA columns from each side to avoid pandas FutureWarning
+                    st.session_state.edited_df = pd.concat(
+                        [current.dropna(axis=1, how="all"), new_df.dropna(axis=1, how="all")],
+                        ignore_index=True,
+                    )
                 st.success(f"Item **{f_name.strip()}** adicionado.")
                 st.rerun()
 
@@ -192,10 +219,17 @@ def render_results_tab() -> None:
                 st.rerun()
 
     # --- Export (apply pending edits before exporting) ---
+    EXPORT_COLUMNS = [
+        "approved", "id", "category", "name", "description",
+        "price_raw", "price_float",
+        "conf_name", "conf_description", "conf_price", "conf_category",
+    ]
     col_a, col_b, _ = st.columns([1, 1, 4])
     export_df = _apply_editor_delta(st.session_state.edited_df)
+    export_df = export_df.reindex(columns=EXPORT_COLUMNS)
     with col_a:
-        csv = export_df.to_csv(index=False).encode("utf-8")
+        # utf-8-sig adds BOM so Excel reads accents correctly on Windows
+        csv = export_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Exportar CSV", csv, "cardapio.csv", "text/csv")
     with col_b:
         json_str = export_df.to_json(orient="records", force_ascii=False, indent=2)

@@ -36,7 +36,7 @@ def _get_client() -> genai.Client:
     retry=retry_if_exception_type(genai_errors.ServerError),
     reraise=True,
 )
-def _call_vision(image_bytes: bytes, media_type: str, user_prompt: str) -> tuple[str, float]:
+def _call_vision(image_bytes: bytes, user_prompt: str) -> tuple[str, float]:
     client = _get_client()
     start = time.time()
 
@@ -56,9 +56,9 @@ def _call_vision(image_bytes: bytes, media_type: str, user_prompt: str) -> tuple
     return response.text, duration
 
 
-def extract_menu(image_bytes: bytes, media_type: str, filename: str, blur_score: float) -> dict:
+def extract_menu(image_bytes: bytes, filename: str, blur_score: float) -> dict:
     user_prompt = build_user_prompt(blur_score, filename)
-    raw_text, duration = _call_vision(image_bytes, media_type, user_prompt)
+    raw_text, duration = _call_vision(image_bytes, user_prompt)
 
     json_text = extract_json_from_response(raw_text)
     parsed = repair_json(json_text)

@@ -1,3 +1,5 @@
+from config import BLUR_THRESHOLD_WARNING
+
 SYSTEM_PROMPT = """
 You are a precise menu data extraction engine. Your sole function is to extract
 structured data from restaurant menu images and return valid JSON.
@@ -67,6 +69,3 @@ Return a JSON object matching this exact structure:
 }}
 
 Filename for reference: {filename}"""
-
-
-BLUR_THRESHOLD_WARNING = 50.0

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import pandas as pd
 from pydantic import BaseModel, Field, field_validator, model_validator
+
+from config import MODEL_NAME
 
 
 class FieldConfidence(BaseModel):
@@ -56,8 +58,8 @@ class ExtractionMetadata(BaseModel):
     restaurant_name: Optional[str] = None
     currency_symbol: Optional[str] = None
     currency_code: Optional[str] = None
-    extraction_timestamp: datetime = Field(default_factory=datetime.utcnow)
-    model_used: str = "claude-sonnet-4-6"
+    extraction_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    model_used: str = MODEL_NAME
     image_filename: Optional[str] = None
     image_blur_score: Optional[float] = None
     total_items_extracted: int = 0

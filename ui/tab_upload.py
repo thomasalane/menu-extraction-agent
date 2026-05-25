@@ -70,10 +70,10 @@ def _run_extraction(file_bytes: bytes, filename: str, blur_score: float) -> None
 
     progress = st.progress(0, text="Preparando imagem...")
     try:
-        api_bytes, media_type = prepare_for_api(file_bytes)
+        api_bytes, _ = prepare_for_api(file_bytes)
         progress.progress(25, text="Imagem preparada. Chamando API...")
 
-        raw = extract_menu(api_bytes, media_type, filename, blur_score)
+        raw = extract_menu(api_bytes, filename, blur_score)
         progress.progress(75, text="Parseando resposta...")
 
         result = MenuExtractionResult.model_validate(raw)
