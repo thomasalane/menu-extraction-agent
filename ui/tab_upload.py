@@ -2,14 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from image_utils import (
-    BLUR_THRESHOLD_ERROR,
-    BLUR_THRESHOLD_WARNING,
-    compute_blur_score,
-    make_thumbnail,
-    prepare_for_api,
-    validate_image,
-)
+from image_utils import make_thumbnail, prepare_for_api, validate_image
 
 
 def render_upload_tab() -> None:
@@ -32,8 +25,6 @@ def render_upload_tab() -> None:
         st.error(err)
         return
 
-    blur_score = compute_blur_score(file_bytes)
-    st.session_state.blur_score = blur_score
     st.session_state.uploaded_bytes = file_bytes
     st.session_state.uploaded_filename = uploaded.name
 
@@ -43,28 +34,17 @@ def render_upload_tab() -> None:
         st.image(thumb, caption=uploaded.name, width="stretch")
 
     with col_info:
-        st.metric("Blur Score", f"{blur_score:.1f}")
-        if blur_score < BLUR_THRESHOLD_ERROR:
-            st.error("Imagem muito borrada. Qualidade de extração será baixa.")
-        elif blur_score < BLUR_THRESHOLD_WARNING:
-            st.warning("Imagem pode estar borrada. Resultados podem ter baixa confiança.")
-        else:
-            st.success("Qualidade da imagem parece adequada.")
-
         st.metric("Tamanho", f"{len(file_bytes) / 1024:.1f} KB")
-
-    proceed = True
-    if blur_score < BLUR_THRESHOLD_ERROR:
-        proceed = st.checkbox("Prosseguir mesmo com baixa qualidade de imagem")
-
-    if not proceed:
-        return
+        st.caption(
+            "Use uma imagem nítida e bem iluminada para melhores resultados. "
+            "A confiança de cada campo extraído é exibida na aba Resultados."
+        )
 
     if st.button("Extrair Dados do Cardápio", type="primary", use_container_width=True):
-        _run_extraction(file_bytes, uploaded.name, blur_score)
+        _run_extraction(file_bytes, uploaded.name)
 
 
-def _run_extraction(file_bytes: bytes, filename: str, blur_score: float) -> None:
+def _run_extraction(file_bytes: bytes, filename: str) -> None:
     from agent import extract_menu
     from schemas import MenuExtractionResult
 
@@ -73,7 +53,7 @@ def _run_extraction(file_bytes: bytes, filename: str, blur_score: float) -> None
         api_bytes, _ = prepare_for_api(file_bytes)
         progress.progress(25, text="Imagem preparada. Chamando API...")
 
-        raw = extract_menu(api_bytes, filename, blur_score)
+        raw = extract_menu(api_bytes, filename)
         progress.progress(75, text="Parseando resposta...")
 
         result = MenuExtractionResult.model_validate(raw)

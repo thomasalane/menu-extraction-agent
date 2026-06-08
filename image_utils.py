@@ -2,22 +2,12 @@ from __future__ import annotations
 
 import io
 
-import numpy as np
 from PIL import Image
 
-from config import (
-    BLUR_THRESHOLD_ERROR,
-    BLUR_THRESHOLD_WARNING,
-    MAX_IMAGE_DIMENSION,
-    MAX_IMAGE_SIZE_MB,
-    SUPPORTED_FORMATS,
-)
+from config import MAX_IMAGE_DIMENSION, MAX_IMAGE_SIZE_MB, SUPPORTED_FORMATS
 
 __all__ = [
-    "BLUR_THRESHOLD_ERROR",
-    "BLUR_THRESHOLD_WARNING",
     "validate_image",
-    "compute_blur_score",
     "prepare_for_api",
     "make_thumbnail",
 ]
@@ -35,22 +25,6 @@ def validate_image(file_bytes: bytes) -> tuple[bool, str]:
         return True, ""
     except Exception as exc:
         return False, f"Não foi possível abrir a imagem: {exc}"
-
-
-def compute_blur_score(file_bytes: bytes) -> float:
-    img = Image.open(io.BytesIO(file_bytes)).convert("L")
-    arr = np.array(img, dtype=np.float32)
-
-    kernel = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]], dtype=np.float32)
-
-    try:
-        from scipy.signal import convolve2d
-        convolved = convolve2d(arr, kernel, mode="valid")
-    except ImportError:
-        # Fallback: pixel-difference variance when scipy is unavailable
-        convolved = arr[1:, :] - arr[:-1, :]
-
-    return float(np.var(convolved))
 
 
 def prepare_for_api(file_bytes: bytes) -> tuple[bytes, str]:

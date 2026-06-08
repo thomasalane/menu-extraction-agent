@@ -1,5 +1,3 @@
-from config import BLUR_THRESHOLD_WARNING
-
 SYSTEM_PROMPT = """
 You are a precise menu data extraction engine. Your sole function is to extract
 structured data from restaurant menu images and return valid JSON.
@@ -36,16 +34,11 @@ CRITICAL RULES — follow exactly:
 """.strip()
 
 
-def build_user_prompt(blur_score: float, filename: str) -> str:
-    quality_note = ""
-    if blur_score < BLUR_THRESHOLD_WARNING:
-        quality_note = (
-            f"\nNOTE: Blur detection indicates this image may be low quality "
-            f"(blur score: {blur_score:.1f}). Apply conservative confidence "
-            "scores and use null liberally."
-        )
+def build_user_prompt(filename: str) -> str:
+    return f"""Extract all menu items from this image.
 
-    return f"""Extract all menu items from this image.{quality_note}
+If any part of the image is blurry, low-resolution, or hard to read, apply
+conservative confidence scores and use null liberally rather than guessing.
 
 Return a JSON object matching this exact structure:
 {{

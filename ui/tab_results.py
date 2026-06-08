@@ -64,6 +64,32 @@ def _on_editor_change() -> None:
             df.at[actual_idx, "price_float"] = _parse_price(str(changes["price_raw"] or ""))
 
 
+_FLAG_LABELS = {
+    "low_confidence": "Baixa confiança da IA",
+    "price_parse_failed": "Preço não reconhecido",
+    "missing_description": "Descrição ausente",
+}
+
+
+def _render_validation_panel(df: pd.DataFrame) -> None:
+    """Surface the Pydantic-generated quality flags so the user can review them."""
+    if "flags" not in df.columns:
+        return
+
+    flagged = df[df["flags"].astype(str).str.strip() != ""]
+    if flagged.empty:
+        st.success("Validação: nenhum item sinalizado. Todos os campos passaram nas verificações.")
+        return
+
+    with st.expander(f"Ver {len(flagged)} item(ns) sinalizado(s) na validação"):
+        for _, row in flagged.iterrows():
+            raw_flags = [f.strip() for f in str(row["flags"]).split(",") if f.strip()]
+            labels = [_FLAG_LABELS.get(f, f) for f in raw_flags]
+            nome = row["name"] or "(sem nome)"
+            categoria = row["category"] or "Sem categoria"
+            st.markdown(f"**{nome}** · _{categoria}_ — {', '.join(labels)}")
+
+
 def render_results_tab() -> None:
     st.header("Itens Extraídos")
 
@@ -85,12 +111,19 @@ def render_results_tab() -> None:
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total de Itens", len(base_df))
-    c2.metric("Sinalizados", result.metadata.total_items_flagged)
+    c2.metric(
+        "Sinalizados",
+        result.metadata.total_items_flagged,
+        help="Itens com algum problema de qualidade detectado automaticamente: "
+        "baixa confiança da IA, preço não reconhecido ou descrição ausente.",
+    )
     c3.metric("Restaurante", result.metadata.restaurant_name or "Desconhecido")
     c4.metric("Modelo", result.metadata.model_used)
 
     if result.extraction_notes:
         st.info(f"Notas da extração: {result.extraction_notes}")
+
+    _render_validation_panel(base_df)
 
     if base_df.empty:
         st.warning("Nenhum item foi extraído. Tente com outra imagem ou verifique a qualidade da foto.")
@@ -201,7 +234,7 @@ def render_results_tab() -> None:
     with st.expander("Remover itens"):
         df_current = st.session_state.edited_df
         item_labels = [
-            f"{row['name']} ({row['price_raw'] or 'sem preço'})"
+            f"[{row['category'] or 'Sem categoria'}] {row['name']} ({row['price_raw'] or 'sem preço'})"
             for _, row in df_current.iterrows()
         ]
         to_remove = st.multiselect(
@@ -228,8 +261,9 @@ def render_results_tab() -> None:
     export_df = _apply_editor_delta(st.session_state.edited_df)
     export_df = export_df.reindex(columns=EXPORT_COLUMNS)
     with col_a:
-        # utf-8-sig adds BOM so Excel reads accents correctly on Windows
-        csv = export_df.to_csv(index=False).encode("utf-8-sig")
+        # Brazilian Excel expects ';' as field separator and ',' as decimal.
+        # utf-8-sig adds BOM so Excel reads accents correctly on Windows.
+        csv = export_df.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig")
         st.download_button("Exportar CSV", csv, "cardapio.csv", "text/csv")
     with col_b:
         json_str = export_df.to_json(orient="records", force_ascii=False, indent=2)

@@ -72,7 +72,6 @@ def normalize_to_schema(raw: dict, metadata_override: dict) -> dict:
         "currency_code": raw.get("currency_code"),
         "model_used": metadata_override.get("model_used", "gemini-2.5-flash"),
         "image_filename": metadata_override.get("filename"),
-        "image_blur_score": metadata_override.get("blur_score"),
         "extraction_duration_seconds": metadata_override.get("duration"),
         "raw_response_length": metadata_override.get("raw_response_length", 0),
     }

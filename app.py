@@ -9,7 +9,6 @@ for key, default in {
     "edited_df": None,
     "uploaded_bytes": None,
     "uploaded_filename": None,
-    "blur_score": None,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default

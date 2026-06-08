@@ -61,7 +61,6 @@ class ExtractionMetadata(BaseModel):
     extraction_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     model_used: str = MODEL_NAME
     image_filename: Optional[str] = None
-    image_blur_score: Optional[float] = None
     total_items_extracted: int = 0
     total_items_flagged: int = 0
     extraction_duration_seconds: Optional[float] = None

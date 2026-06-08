@@ -56,8 +56,8 @@ def _call_vision(image_bytes: bytes, user_prompt: str) -> tuple[str, float]:
     return response.text, duration
 
 
-def extract_menu(image_bytes: bytes, filename: str, blur_score: float) -> dict:
-    user_prompt = build_user_prompt(blur_score, filename)
+def extract_menu(image_bytes: bytes, filename: str) -> dict:
+    user_prompt = build_user_prompt(filename)
     raw_text, duration = _call_vision(image_bytes, user_prompt)
 
     json_text = extract_json_from_response(raw_text)
@@ -66,7 +66,6 @@ def extract_menu(image_bytes: bytes, filename: str, blur_score: float) -> dict:
     return normalize_to_schema(parsed, {
         "model_used": MODEL_NAME,
         "filename": filename,
-        "blur_score": blur_score,
         "duration": duration,
         "raw_response_length": len(raw_text),
     })
