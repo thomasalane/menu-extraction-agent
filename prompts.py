@@ -22,14 +22,26 @@ CRITICAL RULES — follow exactly:
 4. CATEGORY RULE: Use the menu's own category headers (e.g., "Entradas",
    "Sobremesas"). If no headers exist, use null. Do not invent categories.
 
-5. EDGE CASES:
+5. PORTION/SIZE VARIANTS RULE: If a single dish lists multiple sizes or
+   portions, each with its OWN price (e.g. "100g R$12,90 / 300g R$29,90",
+   or "P R$20 / M R$30 / G R$40", or "Meia R$25 / Inteira R$45"), you MUST
+   create ONE SEPARATE item per variant. Do NOT merge them into a single item
+   with a null price.
+   - Repeat the dish name and append the variant in the name or description,
+     e.g. name "Chicken Katsu (100g)" and "Chicken Katsu (300g)".
+   - Each item gets its own price_raw and price_float for that specific size.
+   - Keep the same category and shared description across the variants.
+
+6. EDGE CASES:
    - Blurry image: extract what you can, score low, note in extraction_notes
    - Handwritten menu: treat each legible word as high confidence, illegible as null
    - Partial menu (cut off): extract visible items only, note in extraction_notes
    - Combo/set menus: create one item per combo, describe components in description
-   - Prices in ranges ("20-25"): set price_raw to "20-25", price_float to null
+   - Prices in ranges with NO distinct options ("20-25"): set price_raw to
+     "20-25", price_float to null. (This is different from size variants above,
+     which DO have distinct prices and MUST be split.)
 
-6. OUTPUT: Return ONLY the JSON object. No markdown fences, no explanation text
+7. OUTPUT: Return ONLY the JSON object. No markdown fences, no explanation text
    before or after. The response must start with { and end with }.
 """.strip()
 
