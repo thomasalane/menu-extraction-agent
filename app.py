@@ -2,18 +2,28 @@ import streamlit as st
 
 from config import APP_TITLE
 
-st.set_page_config(page_title=APP_TITLE, layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(
+    page_title=APP_TITLE,
+    page_icon="🧾",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
 for key, default in {
     "extraction_result": None,
     "edited_df": None,
-    "uploaded_bytes": None,
-    "uploaded_filename": None,
+    "uploaded_images": None,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
 
 st.html("""
+<style>
+/* Oculta o widget de status do toolbar ("Running..." + botão Stop).
+   O Stop não consegue abortar a chamada bloqueante à API e o app já
+   mostra progresso próprio via st.status. */
+div[data-testid="stStatusWidget"] { display: none !important; }
+</style>
 <script>
 (function () {
     const HIDE = ['Print', 'Record screen', 'Made with Streamlit'];
@@ -40,9 +50,13 @@ st.html("""
 </script>
 """)
 
-st.title(APP_TITLE)
+st.title(f"🧾 {APP_TITLE}")
+st.caption(
+    "Envie fotos de cardápios e extraia itens, descrições, preços e categorias "
+    "automaticamente com IA. Revise, edite e exporte em CSV ou JSON."
+)
 
-tab_upload, tab_results = st.tabs(["Upload", "Resultados"])
+tab_upload, tab_results = st.tabs(["📤 Upload", "📋 Resultados"])
 
 with tab_upload:
     from ui.tab_upload import render_upload_tab

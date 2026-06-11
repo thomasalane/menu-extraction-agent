@@ -15,6 +15,36 @@ class FieldConfidence(BaseModel):
     reason: Optional[str] = None
 
 
+# --- Wire schema: estrutura que o Gemini deve retornar (structured output) ---
+# Sem id/flags/source_image, que são gerados localmente após a extração.
+
+class LLMFieldConfidence(BaseModel):
+    score: float
+    reason: Optional[str] = None
+
+
+class LLMMenuItem(BaseModel):
+    category: Optional[str] = None
+    name: str
+    description: Optional[str] = None
+    price_raw: Optional[str] = None
+    price_float: Optional[float] = None
+    confidence_name: LLMFieldConfidence
+    confidence_description: LLMFieldConfidence
+    confidence_price: LLMFieldConfidence
+    confidence_category: LLMFieldConfidence
+
+
+class LLMExtraction(BaseModel):
+    restaurant_name: Optional[str] = None
+    currency_symbol: Optional[str] = None
+    currency_code: Optional[str] = None
+    extraction_notes: Optional[str] = None
+    items: list[LLMMenuItem] = Field(default_factory=list)
+
+
+# --- Schema interno: resultado validado e enriquecido ---
+
 class MenuItem(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4())[:8])
     category: Optional[str] = None
@@ -22,6 +52,7 @@ class MenuItem(BaseModel):
     description: Optional[str] = None
     price_raw: Optional[str] = None
     price_float: Optional[float] = None
+    source_image: Optional[str] = None
 
     confidence_name: FieldConfidence
     confidence_description: FieldConfidence
@@ -80,7 +111,7 @@ class MenuExtractionResult(BaseModel):
 
     _COLUMNS = ["approved", "id", "category", "name", "description", "price_raw",
                 "price_float", "conf_name", "conf_description", "conf_price",
-                "conf_category", "flags"]
+                "conf_category", "flags", "source_image"]
 
     def to_dataframe(self) -> pd.DataFrame:
         if not self.items:
@@ -100,5 +131,6 @@ class MenuExtractionResult(BaseModel):
                 "conf_price": item.confidence_price.score,
                 "conf_category": item.confidence_category.score,
                 "flags": ", ".join(item.flags),
+                "source_image": item.source_image or "",
             })
         return pd.DataFrame(rows)

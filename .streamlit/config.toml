@@ -3,3 +3,10 @@ gatherUsageStats = false
 
 [client]
 toolbarMode = "viewer"
+
+[theme]
+base = "dark"
+primaryColor = "#E8A33D"
+backgroundColor = "#15110D"
+secondaryBackgroundColor = "#221B14"
+textColor = "#F2EBE3"
