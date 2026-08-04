@@ -1,18 +1,18 @@
 # 🧾 Menu Extraction Agent
 
-## 📋 Sobre o Projeto
+## 📋 About the Project
 
-Aplicação para extrair dados estruturados de imagens de cardápios usando IA.
+An application that extracts structured data from restaurant menu images using AI.
 
-Desenvolvido com **Streamlit** e **Google Gemini**, o sistema identifica automaticamente itens, descrições, preços e categorias a partir de fotos de menus.
+Built with **Streamlit** and **Google Gemini**, the system automatically identifies items, descriptions, prices and categories from menu photos.
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
-- Upload de uma ou várias imagens (cardápios de múltiplas páginas são consolidados)
-- Validação de qualidade da imagem (resolução, desfoque e iluminação) antes da extração
-- Extração automática via IA (Gemini 2.5 Flash) com structured output — JSON validado direto da API
-- Score de confiança por campo extraído, com sinalização automática de itens para revisão
-- Revisão e edição dos dados extraídos (editar, adicionar, remover e aprovar itens)
-- Filtros por categoria, busca por nome e visualização apenas dos itens sinalizados
-- Mini-dashboard com estatísticas de preço e distribuição por categoria
-- Exportação em CSV (compatível com Excel BR) ou JSON, com opção de exportar só itens aprovados
+- Upload one or multiple images (multi-page menus are consolidated into a single result)
+- Image quality validation (resolution, blur and lighting) before extraction
+- Automatic AI extraction (Gemini 2.5 Flash) with structured output — validated JSON straight from the API
+- Confidence score per extracted field, automatically flagging items for review
+- Review and edit the extracted data (edit, add, remove and approve items)
+- Filter by category, search by name, and view only flagged items
+- Mini-dashboard with price statistics and category distribution
+- Export to CSV (Excel BR compatible) or JSON, with the option to export approved items only
