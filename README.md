@@ -16,3 +16,5 @@ Built with **Streamlit** and **Google Gemini**, the system automatically identif
 - Filter by category, search by name, and view only flagged items
 - Mini-dashboard with price statistics and category distribution
 - Export to CSV (Excel BR compatible) or JSON, with the option to export approved items only
+
+> **Note:** the app interface is in Portuguese, as it was built for a Brazilian use case.
